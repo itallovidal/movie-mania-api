@@ -1,4 +1,10 @@
-import { Controller, Get, Inject } from '@nestjs/common'
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Inject,
+  Param,
+} from '@nestjs/common'
 import {
   ISUsersRepository,
   IUsersRepository,
@@ -25,5 +31,20 @@ export class MoviesController {
   }
 
   @Get('random/:id')
-  async getRandomMoviesByGenre() {}
+  async getRandomMoviesByGenre(@Param('id') id: string) {
+    if (!id || !Number(id)) {
+      return new BadRequestException('O id do gênero deve ser informado.')
+    }
+    const { genres } = await this.moviesRepository.getAllGenres()
+    const movieId = Number(id)
+
+    const isValid = genres.some((genre) => genre.id === movieId)
+
+    if (!isValid) {
+      return new BadRequestException('O id do gênero fornecido não é válido.')
+    }
+
+    const movies = await this.moviesRepository.getRandomMoviesByGenre(movieId)
+    return formatMovies(genres, movies)
+  }
 }

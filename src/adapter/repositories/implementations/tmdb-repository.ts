@@ -38,4 +38,18 @@ export class TMDBRepository implements IMoviesRepository {
 
     return data as IGetRandomMoviesResponse
   }
+
+  async getRandomMoviesByGenre(id: number): Promise<IGetRandomMoviesResponse> {
+    const { data } = await this.movieDB.get('/discover/movie', {
+      params: {
+        page: 1,
+        sort_by: 'popularity.desc',
+        'vote_average.gte': 7,
+        with_original_language: 'pt|en',
+        with_genres: id,
+      },
+    })
+
+    return data as IGetRandomMoviesResponse
+  }
 }
