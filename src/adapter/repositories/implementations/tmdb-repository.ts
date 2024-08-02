@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { IMoviesRepository } from '../IMoviesRepository'
 import {
   IGetGenresResponse,
-  IGetRandomMoviesResponse,
+  IGetMoviesResponse,
 } from '../../../domain/tmdb-responses'
 import axios from 'axios'
 import { undefined } from 'zod'
@@ -26,7 +26,7 @@ export class TMDBRepository implements IMoviesRepository {
     return data as IGetGenresResponse
   }
 
-  async getRandomMovies(): Promise<IGetRandomMoviesResponse> {
+  async getRandomMovies(): Promise<IGetMoviesResponse> {
     const { data } = await this.movieDB.get('/discover/movie', {
       params: {
         page: 1,
@@ -36,10 +36,10 @@ export class TMDBRepository implements IMoviesRepository {
       },
     })
 
-    return data as IGetRandomMoviesResponse
+    return data as IGetMoviesResponse
   }
 
-  async getRandomMoviesByGenre(id: number): Promise<IGetRandomMoviesResponse> {
+  async getRandomMoviesByGenre(id: number): Promise<IGetMoviesResponse> {
     const { data } = await this.movieDB.get('/discover/movie', {
       params: {
         page: 1,
@@ -50,6 +50,19 @@ export class TMDBRepository implements IMoviesRepository {
       },
     })
 
-    return data as IGetRandomMoviesResponse
+    return data as IGetMoviesResponse
+  }
+
+  async searchMovie(title: string): Promise<IGetMoviesResponse> {
+    const { data } = await this.movieDB.get('/search/movie', {
+      params: {
+        page: 1,
+        sort_by: 'popularity.desc',
+        with_original_language: 'pt|en',
+        query: title,
+      },
+    })
+
+    return data as IGetMoviesResponse
   }
 }

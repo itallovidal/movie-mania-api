@@ -47,4 +47,15 @@ export class MoviesController {
     const movies = await this.moviesRepository.getRandomMoviesByGenre(movieId)
     return formatMovies(genres, movies)
   }
+
+  @Get('search/:title')
+  async searchMovieByTitle(@Param('title') title: string) {
+    if (!title) {
+      return new BadRequestException('O título do filme deve ser informado.')
+    }
+    const { genres } = await this.moviesRepository.getAllGenres()
+
+    const movies = await this.moviesRepository.searchMovie(title)
+    return formatMovies(genres, movies)
+  }
 }

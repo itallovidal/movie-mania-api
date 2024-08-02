@@ -22,7 +22,7 @@ export interface IMovieResponse {
   vote_count: number
 }
 
-export interface IGetRandomMoviesResponse {
+export interface IGetMoviesResponse {
   page: number
   results: IMovieResponse[]
   total_pages: number

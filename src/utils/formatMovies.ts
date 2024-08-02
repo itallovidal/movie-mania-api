@@ -1,11 +1,11 @@
 import {
   IGetGenresResponse,
-  IGetRandomMoviesResponse,
+  IGetMoviesResponse,
 } from '../domain/tmdb-responses'
 
 export function formatMovies(
   genres: IGetGenresResponse['genres'],
-  movies: IGetRandomMoviesResponse,
+  movies: IGetMoviesResponse,
 ) {
   const formattedMovies = movies.results.map((movie) => {
     const {
