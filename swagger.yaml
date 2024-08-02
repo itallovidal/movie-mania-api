@@ -51,14 +51,14 @@ paths:
                 $ref: '#/components/schemas/Movie'
         '500':
           description: Internal Server Error.
-  /movies/random/{genre}:
+  /movies/random/{id}:
     get:
       tags:
         - movies
       summary: 'A route that get 10 random movies considering the genre'
       parameters:
         - in: path
-          name: genre
+          name: id
           required: true
           schema:
             type: integer
@@ -72,11 +72,11 @@ paths:
                 $ref: '#/components/schemas/RandomMovies'
         '500':
           description: Internal Server Error.
-  /movies/details/{id}:
+  /movies/comments/{id}:
     get:
       tags:
         - movies
-      summary: 'A route that get a specific movie '
+      summary: 'A route that returns all movie comments'
       parameters:
         - in: path
           name: id
@@ -90,7 +90,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MovieDetails'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '500':
+          description: Internal Server Error.
+  /movies/comments/{movieId}:
+    post:
+      tags:
+        - movies
+      summary: 'A route that post a comment in a movie'
+      parameters:
+        - in: path
+          name: movieId
+          required: true
+          schema:
+            type: integer
+      operationId: postMovieComment
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  example: Muito legal esse filme!
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
         '500':
           description: Internal Server Error.
   /users/sign-up:
@@ -98,7 +131,7 @@ paths:
       tags:
         - users
       summary: 'Create user'
-      operationId: signUp
+      operationId: createUser
       requestBody:
         description: Created user object
         content:
@@ -108,6 +141,21 @@ paths:
       responses:
         '201':
           description: User Created Successfully
+        '500':
+          description: Internal Server Error.
+  /users/profile:
+    get:
+      tags:
+        - users
+      summary: 'Get user profile'
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
         '500':
           description: Internal Server Error.
   /users/login:
@@ -123,12 +171,18 @@ paths:
             schema:
               $ref: '#/components/schemas/LoginUser'
       responses:
-        default:
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/JWT'
+        '404':
+          description: user does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObject'
   /lists/{id}:
     get:
       tags:
@@ -220,11 +274,33 @@ paths:
       responses:
         '200':
           description: Successful operation
-
         '500':
           description: Internal Server Error.
 components:
   schemas:
+    errorObject:
+      type: object
+      properties:
+        description:
+          type: string
+          example: user not found
+        code:
+          type: integer
+          example: 404
+        error:
+          type: string
+          example: Not Found
+    UserProfile:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Itallo Vidal"
+        favoriteGenres:
+          type: array
+          items:
+            type: string
+            example: "Ação"
     ListResumoArray:
       type: array
       items:
@@ -297,13 +373,13 @@ components:
         email:
           type: string
           example: Itallo@email.com
-        favoriteGenres:
-          type: array
-          items:
-            type: integer
-          description: Array of genres
-          format: int32
-          example: [1, 2]
+        favoriteGenre1:
+          type: number
+          example: 12
+        favoriteGenre2:
+          type: number
+          example: 28
+
     MovieDetailsList:
       type: object
       properties:
@@ -392,3 +468,4 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/MovieDetailsList'
+

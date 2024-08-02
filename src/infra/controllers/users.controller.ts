@@ -30,7 +30,6 @@ import {
   IMoviesRepository,
   ISMoviesRepository,
 } from '../../adapter/repositories/IMoviesRepository'
-import { filter } from 'rxjs'
 
 @Controller('/users')
 export class UsersController {
