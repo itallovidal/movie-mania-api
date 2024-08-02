@@ -12,9 +12,9 @@ import {
   Response,
 } from '@nestjs/common'
 import {
-  ISUsersRepository,
-  IUsersRepository,
-} from '../../adapter/repositories/IUsersRepository'
+  ISDatabaseRepository,
+  IDatabaseRepository,
+} from '../../adapter/repositories/IDatabaseRepository'
 import { ZodValidationPipe } from '../zod-validation-pipe'
 import {
   ISignUpSchema,
@@ -34,12 +34,12 @@ import {
 @Controller('/users')
 export class UsersController {
   constructor(
-    @Inject(ISUsersRepository) private usersRepository: IUsersRepository,
+    @Inject(ISDatabaseRepository) private usersRepository: IDatabaseRepository,
     @Inject(ISMoviesRepository) private moviesRepository: IMoviesRepository,
   ) {}
 
   @Get('/profile')
-  async getProfile(@Response({ passthrough: true }) res: Request) {
+  async getProfile(@Response({ passthrough: true }) res: Response) {
     const user = res['locals'].user as IUserDTO
 
     if (!user) {

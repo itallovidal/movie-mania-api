@@ -1,14 +1,14 @@
 import { PrismaClient } from '@prisma/client'
-import { IUsersRepository } from '../IUsersRepository'
+import { IDatabaseRepository } from '../IDatabaseRepository'
 import { ISignUpSchema } from '../../schemas/sign-up-schema'
 import { IUser } from '../../../domain/IUser'
 import { hash } from 'bcrypt'
 import { Injectable } from '@nestjs/common'
 
 @Injectable()
-export class PrismaUsersRepository
+export class PrismaRepository
   extends PrismaClient
-  implements IUsersRepository
+  implements IDatabaseRepository
 {
   private prisma: PrismaClient
 
@@ -51,5 +51,19 @@ export class PrismaUsersRepository
         email,
       },
     })) as IUser
+  }
+
+  async postComment(
+    movieId: number,
+    id: number,
+    comment: string,
+  ): Promise<void> {
+    await this.prisma.comment.create({
+      data: {
+        comment,
+        userID: id,
+        movieID: movieId,
+      },
+    })
   }
 }

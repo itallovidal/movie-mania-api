@@ -1,25 +1,32 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
+  HttpCode,
   Inject,
   Param,
+  Post,
+  Response,
 } from '@nestjs/common'
 import {
-  ISUsersRepository,
-  IUsersRepository,
-} from '../../adapter/repositories/IUsersRepository'
+  ISDatabaseRepository,
+  IDatabaseRepository,
+} from '../../adapter/repositories/IDatabaseRepository'
 
 import {
   IMoviesRepository,
   ISMoviesRepository,
 } from '../../adapter/repositories/IMoviesRepository'
 import { formatMovies } from '../../utils/formatMovies'
+import { IUserDTO } from '../../domain/userDTO'
+import { ZodValidationPipe } from '../zod-validation-pipe'
+import { IPostCommentSchema, postCommentSchema } from '../validations'
 
 @Controller('/movies')
 export class MoviesController {
   constructor(
-    @Inject(ISUsersRepository) private usersRepository: IUsersRepository,
+    @Inject(ISDatabaseRepository) private usersRepository: IDatabaseRepository,
     @Inject(ISMoviesRepository) private moviesRepository: IMoviesRepository,
   ) {}
 
@@ -33,7 +40,7 @@ export class MoviesController {
   @Get('random/:id')
   async getRandomMoviesByGenre(@Param('id') id: string) {
     if (!id || !Number(id)) {
-      return new BadRequestException('O id do gênero deve ser informado.')
+      throw new BadRequestException('O id do gênero deve ser informado.')
     }
     const { genres } = await this.moviesRepository.getAllGenres()
     const movieId = Number(id)
@@ -41,7 +48,7 @@ export class MoviesController {
     const isValid = genres.some((genre) => genre.id === movieId)
 
     if (!isValid) {
-      return new BadRequestException('O id do gênero fornecido não é válido.')
+      throw new BadRequestException('O id do gênero fornecido não é válido.')
     }
 
     const movies = await this.moviesRepository.getRandomMoviesByGenre(movieId)
@@ -51,11 +58,36 @@ export class MoviesController {
   @Get('search/:title')
   async searchMovieByTitle(@Param('title') title: string) {
     if (!title) {
-      return new BadRequestException('O título do filme deve ser informado.')
+      throw new BadRequestException('O título do filme deve ser informado.')
     }
     const { genres } = await this.moviesRepository.getAllGenres()
 
     const movies = await this.moviesRepository.searchMovie(title)
     return formatMovies(genres, movies)
+  }
+
+  @Post('comment/:movieId')
+  @HttpCode(201)
+  async postComment(
+    @Body(new ZodValidationPipe(postCommentSchema)) payload: IPostCommentSchema,
+    @Param('movieId')
+    movieId: string,
+    @Response({ passthrough: true }) res: Response,
+  ) {
+    const user = res['locals'].user as IUserDTO
+
+    if (!user) {
+      throw new BadRequestException('Token inexistente ou inválido.')
+    }
+
+    if (!movieId || !Number(movieId)) {
+      throw new BadRequestException('O id do filme deve ser informado.')
+    }
+
+    await this.usersRepository.postComment(
+      Number(movieId),
+      user.id,
+      payload.text,
+    )
   }
 }

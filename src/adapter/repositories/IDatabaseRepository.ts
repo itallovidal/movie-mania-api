@@ -1,10 +1,11 @@
 import { ISignUpSchema } from '../schemas/sign-up-schema'
 import { IUser } from '../../domain/IUser'
 
-export interface IUsersRepository {
+export interface IDatabaseRepository {
   signUp: (data: ISignUpSchema) => Promise<IUser>
   getProfile: (id: number) => Promise<IUser>
   getUserByEmail: (email: string) => Promise<IUser>
+  postComment: (movieId: number, id: number, text: string) => Promise<void>
 }
 
-export const ISUsersRepository = Symbol('IUsersRepository')
+export const ISDatabaseRepository = Symbol('IDatabaseRepository')

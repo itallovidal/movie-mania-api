@@ -4,9 +4,9 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common'
-import { ISUsersRepository } from '../../adapter/repositories/IUsersRepository'
+import { ISDatabaseRepository } from '../../adapter/repositories/IDatabaseRepository'
 import { UsersController } from '../controllers/users.controller'
-import { PrismaUsersRepository } from '../../adapter/repositories/implementations/prisma-users-repository'
+import { PrismaRepository } from '../../adapter/repositories/implementations/prisma-repository'
 import { AuthUser } from '../auth.middleware'
 import { ISMoviesRepository } from '../../adapter/repositories/IMoviesRepository'
 import { TMDBRepository } from '../../adapter/repositories/implementations/tmdb-repository'
@@ -15,8 +15,8 @@ import { TMDBRepository } from '../../adapter/repositories/implementations/tmdb-
   controllers: [UsersController],
   providers: [
     {
-      provide: ISUsersRepository,
-      useClass: PrismaUsersRepository,
+      provide: ISDatabaseRepository,
+      useClass: PrismaRepository,
     },
     {
       provide: ISMoviesRepository,
