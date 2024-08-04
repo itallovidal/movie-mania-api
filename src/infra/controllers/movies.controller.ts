@@ -22,6 +22,8 @@ import { formatMovies } from '../../utils/formatMovies'
 import { IUserDTO } from '../../domain/userDTO'
 import { ZodValidationPipe } from '../zod-validation-pipe'
 import { IPostCommentSchema, postCommentSchema } from '../validations'
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 @Controller('/movies')
 export class MoviesController {
@@ -84,10 +86,61 @@ export class MoviesController {
       throw new BadRequestException('O id do filme deve ser informado.')
     }
 
-    await this.usersRepository.postComment(
+    const postedComment = await this.usersRepository.postComment(
       Number(movieId),
       user.id,
       payload.text,
     )
+
+    const postedCommentInfo = await this.usersRepository.postedCommentById(
+      postedComment.id,
+    )
+
+    const formattedComment = {
+      comment: postedCommentInfo.comment,
+      id: postedCommentInfo.id,
+      createdAt: formatDistanceToNow(postedCommentInfo.createdAt, {
+        locale: ptBR,
+        addSuffix: true,
+      }),
+      user: {
+        name: postedCommentInfo.user.name,
+        rating: null,
+      },
+    }
+
+    return formattedComment
+  }
+
+  @Get('comment/:movieId')
+  @HttpCode(200)
+  async getAllMovieComments(
+    @Param('movieId')
+    movieId: string,
+  ) {
+    if (!movieId || !Number(movieId)) {
+      throw new BadRequestException('O id do filme deve ser informado.')
+    }
+
+    const comments = await this.usersRepository.getAllMovieComments(
+      Number(movieId),
+    )
+
+    const formattedComments = comments.map((comment) => {
+      return {
+        comment: comment.comment,
+        id: comment.id,
+        createdAt: formatDistanceToNow(comment.createdAt, {
+          locale: ptBR,
+          addSuffix: true,
+        }),
+        user: {
+          name: comment.user.name,
+          rating: null,
+        },
+      }
+    })
+
+    return formattedComments
   }
 }

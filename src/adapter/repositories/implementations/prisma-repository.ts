@@ -4,6 +4,9 @@ import { ISignUpSchema } from '../../schemas/sign-up-schema'
 import { IUser } from '../../../domain/IUser'
 import { hash } from 'bcrypt'
 import { Injectable } from '@nestjs/common'
+import { IComment } from '../../../domain/IComment'
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 @Injectable()
 export class PrismaRepository
@@ -57,13 +60,35 @@ export class PrismaRepository
     movieId: number,
     id: number,
     comment: string,
-  ): Promise<void> {
-    await this.prisma.comment.create({
+  ): Promise<IComment> {
+    return (await this.prisma.comment.create({
       data: {
         comment,
         userID: id,
         movieID: movieId,
       },
-    })
+    })) as unknown as IComment
+  }
+
+  async postedCommentById(id: number) {
+    return (await this.prisma.comment.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        user: true,
+      },
+    })) as unknown as IComment
+  }
+
+  async getAllMovieComments(movieId: number): Promise<IComment[]> {
+    return (await this.prisma.comment.findMany({
+      where: {
+        movieID: movieId,
+      },
+      include: {
+        user: true,
+      },
+    })) as unknown as IComment[]
   }
 }

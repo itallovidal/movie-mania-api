@@ -11,6 +11,7 @@ async function bootstrap() {
     yaml.parse(swaggerDocument),
   )
   SwaggerModule.setup('swagger', app, document)
+  app.enableCors()
   await app.listen(3333)
 }
 bootstrap()
