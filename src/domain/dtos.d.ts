@@ -53,7 +53,3 @@ interface IUserDTO {
   id: number
   email: string
 }
-
-interface ISignedInDTO {
-  token: string
-}

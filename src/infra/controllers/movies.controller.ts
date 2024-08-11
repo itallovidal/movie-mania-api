@@ -33,10 +33,14 @@ export class MoviesController {
   ) {}
 
   @Get('/discover')
-  async getRandomMovies() {
+  async getRandomMovies(): Promise<IGetMoviesByGenreResponse> {
     const movies = await this.moviesRepository.getRandomMovies()
     const { genres } = await this.moviesRepository.getAllGenres()
-    return formatMovies(genres, movies)
+    const randomMovies = formatMovies(genres, movies)
+
+    return {
+      movies: randomMovies,
+    }
   }
 
   @Get('random/:id')
