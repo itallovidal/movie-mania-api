@@ -24,8 +24,6 @@ import { ILoginSchema, loginSchema } from '../../adapter/schemas/login-schema'
 import { compare } from 'bcrypt'
 import { env } from '../../../env'
 import { sign } from 'jsonwebtoken'
-import { Request } from 'express'
-import { IUserDTO } from '../../domain/userDTO'
 import {
   IMoviesRepository,
   ISMoviesRepository,
@@ -39,7 +37,9 @@ export class UsersController {
   ) {}
 
   @Get('/profile')
-  async getProfile(@Response({ passthrough: true }) res: Response) {
+  async getProfile(
+    @Response({ passthrough: true }) res: Response,
+  ): Promise<IGetUserProfileResponse> {
     const user = res['locals'].user as IUserDTO
 
     if (!user) {
@@ -49,15 +49,21 @@ export class UsersController {
     const profile = await this.usersRepository.getProfile(user.id)
     const { genres } = await this.moviesRepository.getAllGenres()
 
-    const userGenres = genres.filter(
-      (genre) =>
+    // eslint-disable-next-line array-callback-return
+    const userGenres = genres.map((genre) => {
+      if (
         genre.id === profile.favoriteGenre1 ||
-        genre.id === profile.favoriteGenre2,
-    )
+        genre.id === profile.favoriteGenre2
+      ) {
+        return genre.name
+      }
+    })
 
     return {
-      name: profile.name,
-      genres: userGenres,
+      profile: {
+        name: profile.name,
+        favoriteGenres: userGenres,
+      },
     }
   }
 
@@ -78,7 +84,9 @@ export class UsersController {
 
   @Post('/login')
   @HttpCode(200)
-  async login(@Body(new ZodValidationPipe(loginSchema)) payload: ILoginSchema) {
+  async login(
+    @Body(new ZodValidationPipe(loginSchema)) payload: ILoginSchema,
+  ): Promise<ISignInResponse> {
     const user = await this.usersRepository.getUserByEmail(payload.email)
 
     if (!user) {

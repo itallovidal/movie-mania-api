@@ -1,12 +1,8 @@
 import { PrismaClient } from '@prisma/client'
 import { IDatabaseRepository } from '../IDatabaseRepository'
 import { ISignUpSchema } from '../../schemas/sign-up-schema'
-import { IUser } from '../../../domain/IUser'
 import { hash } from 'bcrypt'
 import { Injectable } from '@nestjs/common'
-import { IComment } from '../../../domain/IComment'
-import { formatDistanceToNow } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
 
 @Injectable()
 export class PrismaRepository

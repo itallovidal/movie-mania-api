@@ -1,7 +1,4 @@
 import { ISignUpSchema } from '../schemas/sign-up-schema'
-import { IUser } from '../../domain/IUser'
-
-import { IComment } from '../../domain/IComment'
 
 export interface IDatabaseRepository {
   signUp: (data: ISignUpSchema) => Promise<IUser>
