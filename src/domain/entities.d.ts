@@ -26,4 +26,12 @@ interface IComment {
   id: number
   createdAt: Date
   movieID: number
+  user: {
+    name: string
+    email: string
+    password: string
+    favoriteGenre1: number
+    favoriteGenre2: number
+    id: number
+  }
 }

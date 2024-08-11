@@ -19,7 +19,6 @@ import {
   ISMoviesRepository,
 } from '../../adapter/repositories/IMoviesRepository'
 import { formatMovies } from '../../utils/formatMovies'
-import { IUserDTO } from '../../domain/userDTO'
 import { ZodValidationPipe } from '../zod-validation-pipe'
 import { IPostCommentSchema, postCommentSchema } from '../validations'
 import { formatDistanceToNow } from 'date-fns'
@@ -44,7 +43,9 @@ export class MoviesController {
   }
 
   @Get('random/:id')
-  async getRandomMoviesByGenre(@Param('id') id: string) {
+  async getRandomMoviesByGenre(
+    @Param('id') id: string,
+  ): Promise<IGetMoviesByGenreResponse> {
     if (!id || !Number(id)) {
       throw new BadRequestException('O id do gênero deve ser informado.')
     }
@@ -58,7 +59,11 @@ export class MoviesController {
     }
 
     const movies = await this.moviesRepository.getRandomMoviesByGenre(movieId)
-    return formatMovies(genres, movies)
+    const randomMovies = formatMovies(genres, movies)
+
+    return {
+      movies: randomMovies,
+    }
   }
 
   @Get('search/:title')
@@ -79,7 +84,7 @@ export class MoviesController {
     @Param('movieId')
     movieId: string,
     @Response({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<IPostCommentResponse> {
     const user = res['locals'].user as IUserDTO
 
     if (!user) {
@@ -101,19 +106,21 @@ export class MoviesController {
     )
 
     const formattedComment = {
-      comment: postedCommentInfo.comment,
       id: postedCommentInfo.id,
       createdAt: formatDistanceToNow(postedCommentInfo.createdAt, {
         locale: ptBR,
         addSuffix: true,
       }),
+      comment: postedCommentInfo.comment,
       user: {
-        name: postedCommentInfo.user.name,
         rating: null,
+        name: postedCommentInfo.user.name,
       },
-    }
+    } as ICommentDTO
 
-    return formattedComment
+    return {
+      commentCreated: formattedComment,
+    }
   }
 
   @Get('comment/:movieId')
@@ -121,7 +128,7 @@ export class MoviesController {
   async getAllMovieComments(
     @Param('movieId')
     movieId: string,
-  ) {
+  ): Promise<IGetMovieCommentsResponse> {
     if (!movieId || !Number(movieId)) {
       throw new BadRequestException('O id do filme deve ser informado.')
     }
@@ -143,8 +150,10 @@ export class MoviesController {
           rating: null,
         },
       }
-    })
+    }) as ICommentDTO[]
 
-    return formattedComments
+    return {
+      comments: formattedComments,
+    }
   }
 }
