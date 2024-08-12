@@ -15,6 +15,11 @@ export interface IDatabaseRepository {
     listId: number,
     userId: number,
   ) => Promise<IUserList>
+  removeMovieFromList: (
+    movieId: number,
+    listId: number,
+    userId: number,
+  ) => Promise<{ count: number }>
 }
 
 export const ISDatabaseRepository = Symbol('IDatabaseRepository')

@@ -121,4 +121,16 @@ export class PrismaRepository
       },
     })) as unknown as IUserList
   }
+
+  async removeMovieFromList(movieId: number, listId: number, userId: number) {
+    const deleted = await this.prisma.userList.deleteMany({
+      where: {
+        movieId,
+        listId,
+        userId,
+      },
+    })
+
+    return deleted as { count: number }
+  }
 }

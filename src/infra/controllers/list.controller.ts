@@ -17,9 +17,9 @@ import {
 } from '../../adapter/repositories/IMoviesRepository'
 import { ZodValidationPipe } from '../zod-validation-pipe'
 import {
-  addMovieToListSchema,
-  IAddMovieToListSchema,
-} from '../../adapter/schemas/add-movie-to-list-schema'
+  handleMovieInListSchema,
+  IHandleMovieInListSchema,
+} from '../../adapter/schemas/handle-movie-in-list-schema'
 
 @Controller('/list')
 export class ListController {
@@ -32,8 +32,8 @@ export class ListController {
   @Post('/movie/add')
   async addMovieToList(
     @Response({ passthrough: true }) res: Response,
-    @Body(new ZodValidationPipe(addMovieToListSchema))
-    payload: IAddMovieToListSchema,
+    @Body(new ZodValidationPipe(handleMovieInListSchema))
+    payload: IHandleMovieInListSchema,
   ): Promise<IAddMovieToListResponse> {
     const user = res['locals'].user as IUserDTO
 
@@ -65,6 +65,40 @@ export class ListController {
         name: listAdded.list.name,
       },
       movieAdded: payload.movieId,
+    }
+  }
+
+  @Post('/movie/remove')
+  async removeMovieFromList(
+    @Response({ passthrough: true }) res: Response,
+    @Body(new ZodValidationPipe(handleMovieInListSchema))
+    payload: IHandleMovieInListSchema,
+  ): Promise<IRemoveMovieFromListResponse> {
+    const user = res['locals'].user as IUserDTO
+
+    if (!user) {
+      throw new BadRequestException('Token inexistente ou inválido.')
+    }
+
+    if (!payload.list.id) {
+      throw new BadRequestException('Id da lista inválido.')
+    }
+
+    const deletedRegistryCount =
+      await this.databaseRepository.removeMovieFromList(
+        payload.movieId,
+        payload.list.id,
+        user.id,
+      )
+
+    console.log(deletedRegistryCount)
+
+    return {
+      selectedList: {
+        id: payload.list.id,
+        name: payload.list.name,
+      },
+      movieRemoved: payload.movieId,
     }
   }
 }
