@@ -73,7 +73,14 @@ export class PrismaRepository
         id,
       },
       include: {
-        user: true,
+        user: {
+          select: {
+            name: true,
+            favoriteGenre1: true,
+            favoriteGenre2: true,
+            id: true,
+          },
+        },
       },
     })) as unknown as IComment
   }

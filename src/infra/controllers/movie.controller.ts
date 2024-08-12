@@ -224,6 +224,11 @@ export class MovieController {
       postedComment.id,
     )
 
+    const rating = await this.databaseRepository.getMovieRating(
+      Number(movieId),
+      postedCommentInfo.user.id,
+    )
+
     const formattedComment = {
       id: postedCommentInfo.id,
       created_at: formatDistanceToNow(postedCommentInfo.createdAt, {
@@ -232,7 +237,7 @@ export class MovieController {
       }),
       comment: postedCommentInfo.comment,
       user: {
-        rating: null,
+        rating: rating.rating,
         name: postedCommentInfo.user.name,
       },
     }
@@ -256,8 +261,14 @@ export class MovieController {
       Number(movieId),
     )
 
-    const formattedComments = comments.map((comment) => {
-      return {
+    const formattedComments: ICommentDTO[] = []
+
+    for await (const comment of comments) {
+      const rating = await this.databaseRepository.getMovieRating(
+        Number(movieId),
+        comment.user.id,
+      )
+      const formattedComment = {
         comment: comment.comment,
         id: comment.id,
         created_at: formatDistanceToNow(comment.createdAt, {
@@ -266,10 +277,12 @@ export class MovieController {
         }),
         user: {
           name: comment.user.name,
-          rating: null,
+          rating: rating.rating,
         },
       }
-    })
+
+      formattedComments.push(formattedComment)
+    }
 
     return {
       comments: formattedComments,
