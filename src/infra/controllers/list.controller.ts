@@ -34,9 +34,16 @@ export class ListController {
   @Get('/me/:listId')
   async getAllMoviesFromUserList(
     @Param('listId') listId: string,
+    @Response({ passthrough: true }) res: Response,
   ): Promise<IGetCustomMovieListResponse> {
     if (!listId || !Number(listId)) {
       throw new BadRequestException('O id da lista deve ser informado.')
+    }
+
+    const user = res['locals'].user as IUserDTO
+
+    if (!user) {
+      throw new BadRequestException('Token inexistente ou inválido.')
     }
 
     const query = await this.databaseRepository.getAllMoviesFromUserList(
@@ -50,8 +57,10 @@ export class ListController {
         registry.movieId,
       )
 
-      console.log('detalhes do filme:')
-      console.log(details)
+      const listMovieAppears = await this.databaseRepository.getListByMovieId(
+        registry.movieId,
+        user.id,
+      )
 
       const {
         /* eslint-disable @typescript-eslint/no-unused-vars, camelcase */
@@ -69,7 +78,7 @@ export class ListController {
 
       const formattedDetails = {
         ...rest,
-        lists: [],
+        lists: listMovieAppears,
         backdrop_path: backdrop_path || '',
         rating: {
           average: vote_average,

@@ -113,24 +113,75 @@ export class MovieController {
   @Get('random/:id')
   async getRandomMoviesByGenre(
     @Param('id') id: string,
+    @Response({ passthrough: true }) res: Response,
   ): Promise<IGetMoviesByGenreResponse> {
     if (!id || !Number(id)) {
       throw new BadRequestException('O id do gênero deve ser informado.')
     }
-    const { genres } = await this.moviesRepository.getAllGenres()
-    const movieId = Number(id)
 
-    const isValid = genres.some((genre) => genre.id === movieId)
+    const user = res['locals'].user as { id: number | null }
+
+    console.log('usuário:')
+    console.log(user)
+
+    const { genres } = await this.moviesRepository.getAllGenres()
+    const genreId = Number(id)
+
+    const isValid = genres.some((genre) => genre.id === genreId)
 
     if (!isValid) {
       throw new BadRequestException('O id do gênero fornecido não é válido.')
     }
 
-    const movies = await this.moviesRepository.getRandomMoviesByGenre(movieId)
-    const randomMovies = formatMovies(genres, movies)
+    const unformattedMovies =
+      await this.moviesRepository.getRandomMoviesByGenre(genreId)
+
+    if (!user.id) {
+      const randomMovies = formatMovies(genres, unformattedMovies)
+      return {
+        movies: randomMovies,
+      }
+    }
+
+    const movies: IMovieDTO[] = []
+    for await (const movie of unformattedMovies.results) {
+      const listMovieAppears = await this.databaseRepository.getListByMovieId(
+        movie.id,
+        user.id,
+      )
+
+      const {
+        /* eslint-disable @typescript-eslint/no-unused-vars, camelcase */
+        genre_ids,
+        vote_count,
+        vote_average,
+        popularity,
+        video,
+        original_title,
+        adult,
+        original_language,
+        release_date,
+        backdrop_path,
+        ...rest
+      } = movie
+
+      const formattedMovie = {
+        lists: listMovieAppears,
+        backdrop_path: backdrop_path || '',
+        rating: {
+          average: vote_average,
+          ratingsCount: vote_count,
+        },
+        ...rest,
+        release_date: release_date.split('-').reverse().join('/'),
+        genres: genres.filter((gen) => movie.genre_ids.includes(gen.id)),
+      }
+
+      movies.push(formattedMovie)
+    }
 
     return {
-      movies: randomMovies,
+      movies,
     }
   }
 

@@ -10,6 +10,7 @@ import { ISMoviesRepository } from '../../adapter/repositories/IMoviesRepository
 import { TMDBRepository } from '../../adapter/repositories/implementations/tmdb-repository'
 import { MovieController } from '../controllers/movie.controller'
 import { AuthUser } from '../auth.middleware'
+import { OptionalAuthMiddleware } from '../optionalAuth.middleware'
 
 @Module({
   controllers: [MovieController],
@@ -36,5 +37,9 @@ export class MovieModule implements NestModule {
         method: RequestMethod.ALL,
       },
     )
+    consumer.apply(OptionalAuthMiddleware).forRoutes({
+      path: 'movie/random/:id',
+      method: RequestMethod.GET,
+    })
   }
 }

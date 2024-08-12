@@ -42,7 +42,6 @@ export class UserController {
   ): Promise<IGetUserProfileResponse> {
     const user = res['locals'].user as IUserDTO
 
-    console.log(user)
 
     if (!user) {
       throw new BadRequestException('Token inexistente ou inválido.')

@@ -144,7 +144,14 @@ export class PrismaRepository
       },
     })) as { list: IListSummaryDTO }[]
 
-    return response.map((list) => list.list)
+    const uniqueUserLists = Array.from(
+      new Set(response.map((item) => JSON.stringify(item.list))),
+    ).map((item) => JSON.parse(item))
+
+    console.log('objeto:')
+    console.log(uniqueUserLists)
+
+    return uniqueUserLists
   }
 
   async getAllMoviesFromUserList(
@@ -188,5 +195,25 @@ export class PrismaRepository
     }
 
     return registry[0] as IRatingDTO
+  }
+
+  async getListByMovieId(movieId: number, userId: number) {
+    const registry = await this.prisma.userList.findMany({
+      where: {
+        movieId,
+        userId,
+      },
+      select: {
+        listId: true,
+      },
+    })
+
+    if (registry.length === 0) return []
+
+    return registry.map((value) => {
+      return {
+        id: value.listId,
+      }
+    })
   }
 }
