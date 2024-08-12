@@ -16,12 +16,21 @@ model User {
   id             Int        @id @default(autoincrement())
   Comment        Comment[]
   UserList       UserList[]
+  Rating         Rating[]
 }
 
 model List {
   id       Int        @id @default(autoincrement())
   name     String
   UserList UserList[]
+}
+
+model Rating {
+  id      Int   @id @default(autoincrement())
+  user    User? @relation(fields: [userId], references: [id])
+  userId  Int?
+  rating  Int
+  movieId Int
 }
 
 model UserList {

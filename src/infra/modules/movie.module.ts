@@ -26,9 +26,15 @@ import { AuthUser } from '../auth.middleware'
 })
 export class MovieModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthUser).forRoutes({
-      path: 'movie/comment/:movieId',
-      method: RequestMethod.POST,
-    })
+    consumer.apply(AuthUser).forRoutes(
+      {
+        path: 'movie/comment/:movieId',
+        method: RequestMethod.POST,
+      },
+      {
+        path: 'movie/rating/:movieId',
+        method: RequestMethod.POST,
+      },
+    )
   }
 }

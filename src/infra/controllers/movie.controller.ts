@@ -25,11 +25,16 @@ import {
   IPostCommentSchema,
   postCommentSchema,
 } from '../../adapter/schemas/post-comment-schema'
+import {
+  IRateMovieSchema,
+  rateMovieSchema,
+} from '../../adapter/schemas/rating-schema'
 
 @Controller('/movie')
 export class MovieController {
   constructor(
-    @Inject(ISDatabaseRepository) private usersRepository: IDatabaseRepository,
+    @Inject(ISDatabaseRepository)
+    private databaseRepository: IDatabaseRepository,
     @Inject(ISMoviesRepository) private moviesRepository: IMoviesRepository,
   ) {}
 
@@ -50,6 +55,33 @@ export class MovieController {
 
     return {
       genreList: genres,
+    }
+  }
+
+  @Post('rating/:movieId')
+  async postRating(
+    @Param('movieId') movieId: string,
+    @Response({ passthrough: true }) res: Response,
+    @Body(new ZodValidationPipe(rateMovieSchema)) payload: IRateMovieSchema,
+  ): Promse<IRateMovieResponse> {
+    if (!movieId || !Number(movieId)) {
+      throw new BadRequestException('O id do filme deve ser informado.')
+    }
+
+    const user = res['locals'].user as IUserDTO
+
+    if (!user) {
+      throw new BadRequestException('Token inexistente ou inválido.')
+    }
+
+    const createdRegistry = await this.databaseRepository.rateMovie(
+      Number(movieId),
+      user.id,
+      payload.rating,
+    )
+
+    return {
+      created: createdRegistry,
     }
   }
 
@@ -106,13 +138,13 @@ export class MovieController {
       throw new BadRequestException('O id do filme deve ser informado.')
     }
 
-    const postedComment = await this.usersRepository.postComment(
+    const postedComment = await this.databaseRepository.postComment(
       Number(movieId),
       user.id,
       payload.text,
     )
 
-    const postedCommentInfo = await this.usersRepository.postedCommentById(
+    const postedCommentInfo = await this.databaseRepository.postedCommentById(
       postedComment.id,
     )
 
@@ -144,7 +176,7 @@ export class MovieController {
       throw new BadRequestException('O id do filme deve ser informado.')
     }
 
-    const comments = await this.usersRepository.getAllMovieComments(
+    const comments = await this.databaseRepository.getAllMovieComments(
       Number(movieId),
     )
 

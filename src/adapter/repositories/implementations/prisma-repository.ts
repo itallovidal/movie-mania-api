@@ -162,4 +162,16 @@ export class PrismaRepository
 
     return lists as IGetAllMoviesFromUserListDTO[]
   }
+
+  async rateMovie(movieId: number, userId: number, rate: number) {
+    const created = await this.prisma.rating.create({
+      data: {
+        movieId,
+        rating: rate,
+        userId,
+      },
+    })
+
+    return created
+  }
 }
