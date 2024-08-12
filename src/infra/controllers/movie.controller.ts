@@ -20,12 +20,15 @@ import {
 } from '../../adapter/repositories/IMoviesRepository'
 import { formatMovies } from '../../utils/formatMovies'
 import { ZodValidationPipe } from '../zod-validation-pipe'
-import { IPostCommentSchema, postCommentSchema } from '../validations'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import {
+  IPostCommentSchema,
+  postCommentSchema,
+} from '../../adapter/schemas/post-comment-schema'
 
-@Controller('/movies')
-export class MoviesController {
+@Controller('/movie')
+export class MovieController {
   constructor(
     @Inject(ISDatabaseRepository) private usersRepository: IDatabaseRepository,
     @Inject(ISMoviesRepository) private moviesRepository: IMoviesRepository,
@@ -107,7 +110,7 @@ export class MoviesController {
 
     const formattedComment = {
       id: postedCommentInfo.id,
-      createdAt: formatDistanceToNow(postedCommentInfo.createdAt, {
+      created_at: formatDistanceToNow(postedCommentInfo.createdAt, {
         locale: ptBR,
         addSuffix: true,
       }),
@@ -116,7 +119,7 @@ export class MoviesController {
         rating: null,
         name: postedCommentInfo.user.name,
       },
-    } as ICommentDTO
+    }
 
     return {
       commentCreated: formattedComment,
@@ -141,7 +144,7 @@ export class MoviesController {
       return {
         comment: comment.comment,
         id: comment.id,
-        createdAt: formatDistanceToNow(comment.createdAt, {
+        created_at: formatDistanceToNow(comment.createdAt, {
           locale: ptBR,
           addSuffix: true,
         }),
@@ -150,7 +153,7 @@ export class MoviesController {
           rating: null,
         },
       }
-    }) as ICommentDTO[]
+    })
 
     return {
       comments: formattedComments,

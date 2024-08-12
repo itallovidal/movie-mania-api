@@ -5,14 +5,14 @@ import {
   RequestMethod,
 } from '@nestjs/common'
 import { ISDatabaseRepository } from '../../adapter/repositories/IDatabaseRepository'
-import { UsersController } from '../controllers/users.controller'
 import { PrismaRepository } from '../../adapter/repositories/implementations/prisma-repository'
-import { AuthUser } from '../auth.middleware'
 import { ISMoviesRepository } from '../../adapter/repositories/IMoviesRepository'
 import { TMDBRepository } from '../../adapter/repositories/implementations/tmdb-repository'
+import { AuthUser } from '../auth.middleware'
+import { ListController } from '../controllers/list.controller'
 
 @Module({
-  controllers: [UsersController],
+  controllers: [ListController],
   providers: [
     {
       provide: ISDatabaseRepository,
@@ -24,11 +24,11 @@ import { TMDBRepository } from '../../adapter/repositories/implementations/tmdb-
     },
   ],
 })
-export class UsersModule implements NestModule {
+export class ListModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(AuthUser).forRoutes({
-      path: 'users/profile',
-      method: RequestMethod.GET,
+      path: 'list/*',
+      method: RequestMethod.ALL,
     })
   }
 }

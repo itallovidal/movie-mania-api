@@ -8,11 +8,11 @@ import { ISDatabaseRepository } from '../../adapter/repositories/IDatabaseReposi
 import { PrismaRepository } from '../../adapter/repositories/implementations/prisma-repository'
 import { ISMoviesRepository } from '../../adapter/repositories/IMoviesRepository'
 import { TMDBRepository } from '../../adapter/repositories/implementations/tmdb-repository'
-import { MoviesController } from '../controllers/movies.controller'
+import { MovieController } from '../controllers/movie.controller'
 import { AuthUser } from '../auth.middleware'
 
 @Module({
-  controllers: [MoviesController],
+  controllers: [MovieController],
   providers: [
     {
       provide: ISDatabaseRepository,
@@ -24,10 +24,10 @@ import { AuthUser } from '../auth.middleware'
     },
   ],
 })
-export class MoviesModule implements NestModule {
+export class MovieModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(AuthUser).forRoutes({
-      path: 'movies/comment/:movieId',
+      path: 'movie/comment/:movieId',
       method: RequestMethod.POST,
     })
   }

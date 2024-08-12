@@ -29,8 +29,8 @@ import {
   ISMoviesRepository,
 } from '../../adapter/repositories/IMoviesRepository'
 
-@Controller('/users')
-export class UsersController {
+@Controller('/user')
+export class UserController {
   constructor(
     @Inject(ISDatabaseRepository) private usersRepository: IDatabaseRepository,
     @Inject(ISMoviesRepository) private moviesRepository: IMoviesRepository,
@@ -42,6 +42,8 @@ export class UsersController {
   ): Promise<IGetUserProfileResponse> {
     const user = res['locals'].user as IUserDTO
 
+    console.log(user)
+
     if (!user) {
       throw new BadRequestException('Token inexistente ou inválido.')
     }
@@ -49,8 +51,7 @@ export class UsersController {
     const profile = await this.usersRepository.getProfile(user.id)
     const { genres } = await this.moviesRepository.getAllGenres()
 
-    // eslint-disable-next-line array-callback-return
-    const userGenres = genres.map((genre) => {
+    const userGenres = genres.filter((genre) => {
       if (
         genre.id === profile.favoriteGenre1 ||
         genre.id === profile.favoriteGenre2
@@ -62,7 +63,7 @@ export class UsersController {
     return {
       profile: {
         name: profile.name,
-        favoriteGenres: userGenres,
+        favoriteGenres: userGenres.map((gen) => gen.name),
       },
     }
   }

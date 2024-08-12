@@ -16,8 +16,9 @@ interface IList {
 interface IUserList {
   id: number
   userId: number
-  listID: number
-  movieID: number
+  listId: number
+  movieId: number
+  list: IList
 }
 
 interface IComment {

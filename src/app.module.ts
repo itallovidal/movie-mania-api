@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common'
-import { UsersModule } from './infra/modules/users.module'
-import { MoviesModule } from './infra/modules/movies.module'
+import { UserModule } from './infra/modules/user.module'
+import { MovieModule } from './infra/modules/movie.module'
+import { ListModule } from './infra/modules/list.module'
 
 @Module({
-  imports: [UsersModule, MoviesModule],
+  imports: [UserModule, MovieModule, ListModule],
 })
 export class AppModule {}

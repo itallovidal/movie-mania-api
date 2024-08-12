@@ -3,6 +3,7 @@ import { IDatabaseRepository } from '../IDatabaseRepository'
 import { ISignUpSchema } from '../../schemas/sign-up-schema'
 import { hash } from 'bcrypt'
 import { Injectable } from '@nestjs/common'
+import { IListSchema } from '../../schemas/list-schema'
 
 @Injectable()
 export class PrismaRepository
@@ -86,5 +87,38 @@ export class PrismaRepository
         user: true,
       },
     })) as unknown as IComment[]
+  }
+
+  async createCustomList(newList: IListSchema): Promise<IList> {
+    return (await this.prisma.list.create({
+      data: {
+        name: newList.name,
+      },
+    })) as unknown as IList
+  }
+
+  async getCustomListById(id: number): Promise<IList> {
+    return (await this.prisma.list.findUnique({
+      where: {
+        id,
+      },
+    })) as unknown as IList
+  }
+
+  async addMovieToCustomList(
+    movieId: number,
+    listId: number,
+    userId: number,
+  ): Promise<IUserList> {
+    return (await this.prisma.userList.create({
+      data: {
+        movieId,
+        listId,
+        userId,
+      },
+      include: {
+        list: true,
+      },
+    })) as unknown as IUserList
   }
 }
