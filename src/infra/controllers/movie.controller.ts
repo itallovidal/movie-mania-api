@@ -45,6 +45,15 @@ export class MovieController {
     }
   }
 
+  @Get('/genres')
+  async getMovieGenres(): Promise<IGetGenreListResponse> {
+    const { genres } = await this.moviesRepository.getAllGenres()
+
+    return {
+      genreList: genres,
+    }
+  }
+
   @Get('random/:id')
   async getRandomMoviesByGenre(
     @Param('id') id: string,
