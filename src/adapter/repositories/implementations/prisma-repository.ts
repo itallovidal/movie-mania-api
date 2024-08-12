@@ -146,4 +146,20 @@ export class PrismaRepository
 
     return response.map((list) => list.list)
   }
+
+  async getAllMoviesFromUserList(
+    listId: number,
+  ): Promise<IGetAllMoviesFromUserListDTO[]> {
+    const lists = await this.prisma.userList.findMany({
+      where: {
+        listId,
+      },
+      select: {
+        movieId: true,
+        list: true,
+      },
+    })
+
+    return lists as IGetAllMoviesFromUserListDTO[]
+  }
 }

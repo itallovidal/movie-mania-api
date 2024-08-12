@@ -53,3 +53,8 @@ interface IUserDTO {
   id: number
   email: string
 }
+
+interface IGetAllMoviesFromUserListDTO {
+  movieId: number
+  list: IListSummaryDTO
+}

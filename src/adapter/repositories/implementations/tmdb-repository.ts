@@ -3,9 +3,9 @@ import { IMoviesRepository } from '../IMoviesRepository'
 import {
   IGetGenresResponse,
   IGetMoviesResponse,
+  IMovieDetailsResponse,
 } from '../../../domain/tmdb-responses'
 import axios from 'axios'
-import { undefined } from 'zod'
 
 @Injectable()
 export class TMDBRepository implements IMoviesRepository {
@@ -64,5 +64,11 @@ export class TMDBRepository implements IMoviesRepository {
     })
 
     return data as IGetMoviesResponse
+  }
+
+  async getMovieByMovieId(movieId: number) {
+    const { data } = await this.movieDB.get(`/movie/${movieId}`)
+    const movieDetail = data as IMovieDetailsResponse
+    return movieDetail
   }
 }

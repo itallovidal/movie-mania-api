@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Inject,
+  Param,
   Post,
   Response,
 } from '@nestjs/common'
@@ -29,6 +30,63 @@ export class ListController {
     private databaseRepository: IDatabaseRepository,
     @Inject(ISMoviesRepository) private moviesRepository: IMoviesRepository,
   ) {}
+
+  @Get('/me/:listId')
+  async getAllMoviesFromUserList(
+    @Param('listId') listId: string,
+  ): Promise<IGetCustomMovieListResponse> {
+    if (!listId || !Number(listId)) {
+      throw new BadRequestException('O id da lista deve ser informado.')
+    }
+
+    const query = await this.databaseRepository.getAllMoviesFromUserList(
+      Number(listId),
+    )
+
+    const movies: IMovieDTO[] = []
+
+    for await (const registry of query) {
+      const details = await this.moviesRepository.getMovieByMovieId(
+        registry.movieId,
+      )
+
+      console.log('detalhes do filme:')
+      console.log(details)
+
+      const {
+        /* eslint-disable @typescript-eslint/no-unused-vars, camelcase */
+        vote_count,
+        vote_average,
+        popularity,
+        video,
+        original_title,
+        adult,
+        original_language,
+        release_date,
+        backdrop_path,
+        ...rest
+      } = details
+
+      const formattedDetails = {
+        ...rest,
+        lists: [],
+        backdrop_path: backdrop_path || '',
+        rating: {
+          average: vote_average,
+          ratingsCount: vote_count,
+        },
+        release_date: release_date.split('-').reverse().join('/'),
+      } as IMovieDTO
+
+      movies.push(formattedDetails)
+    }
+
+    return {
+      movies,
+      name: query[0].list.name,
+      id: query[0].list.id,
+    }
+  }
 
   @Get('/')
   async getUserMovieLists(
