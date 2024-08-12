@@ -25,7 +25,13 @@ export interface IDatabaseRepository {
     listId: number,
   ) => Promise<IGetAllMoviesFromUserListDTO[]>
 
-  rateMovie: (movieId: number, userId: number, rate: number) => Promise<any>
+  rateMovie: (
+    movieId: number,
+    userId: number,
+    rate: number,
+  ) => Promise<IRatingDTO>
+
+  getMovieRating: (movieId: number, userId: number) => Promise<IRatingDTO>
 }
 
 export const ISDatabaseRepository = Symbol('IDatabaseRepository')

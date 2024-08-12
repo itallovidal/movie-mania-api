@@ -172,6 +172,21 @@ export class PrismaRepository
       },
     })
 
-    return created
+    return created as IRatingDTO
+  }
+
+  async getMovieRating(movieId: number, userId: number) {
+    const registry = await this.prisma.rating.findMany({
+      where: {
+        movieId,
+        userId,
+      },
+    })
+
+    if (registry.length === 0) {
+      return { id: 0, userId, rating: null, movieId } as const
+    }
+
+    return registry[0] as IRatingDTO
   }
 }

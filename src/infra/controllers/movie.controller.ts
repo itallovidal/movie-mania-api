@@ -63,7 +63,7 @@ export class MovieController {
     @Param('movieId') movieId: string,
     @Response({ passthrough: true }) res: Response,
     @Body(new ZodValidationPipe(rateMovieSchema)) payload: IRateMovieSchema,
-  ): Promse<IRateMovieResponse> {
+  ): Promise<IRateMovieResponse> {
     if (!movieId || !Number(movieId)) {
       throw new BadRequestException('O id do filme deve ser informado.')
     }
@@ -82,6 +82,31 @@ export class MovieController {
 
     return {
       created: createdRegistry,
+    }
+  }
+
+  @Get('rating/:movieId')
+  async getUserRating(
+    @Param('movieId') movieId: string,
+    @Response({ passthrough: true }) res: Response,
+  ) {
+    if (!movieId || !Number(movieId)) {
+      throw new BadRequestException('O id do filme deve ser informado.')
+    }
+
+    const user = res['locals'].user as IUserDTO
+
+    if (!user) {
+      throw new BadRequestException('Token inexistente ou inválido.')
+    }
+
+    const rating = await this.databaseRepository.getMovieRating(
+      Number(movieId),
+      user.id,
+    )
+
+    return {
+      rating,
     }
   }
 

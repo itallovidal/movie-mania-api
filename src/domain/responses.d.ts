@@ -25,11 +25,7 @@ interface IPostCommentResponse {
 }
 
 interface IRateMovieResponse {
-  created: {
-    id: number
-    rating: number
-    movieId: number
-  }
+  created: IRatingDTO
 }
 
 interface IGetUserRatingByMovieIdResponse {

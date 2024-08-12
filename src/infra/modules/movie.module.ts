@@ -33,7 +33,7 @@ export class MovieModule implements NestModule {
       },
       {
         path: 'movie/rating/:movieId',
-        method: RequestMethod.POST,
+        method: RequestMethod.ALL,
       },
     )
   }
