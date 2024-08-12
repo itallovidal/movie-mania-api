@@ -133,4 +133,17 @@ export class PrismaRepository
 
     return deleted as { count: number }
   }
+
+  async getListsByUserId(userId: number): Promise<IListSummaryDTO[]> {
+    const response = (await this.prisma.userList.findMany({
+      select: {
+        list: true,
+      },
+      where: {
+        userId,
+      },
+    })) as { list: IListSummaryDTO }[]
+
+    return response.map((list) => list.list)
+  }
 }

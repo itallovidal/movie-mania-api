@@ -20,6 +20,7 @@ export interface IDatabaseRepository {
     listId: number,
     userId: number,
   ) => Promise<{ count: number }>
+  getListsByUserId: (userId: number) => Promise<IListSummaryDTO[]>
 }
 
 export const ISDatabaseRepository = Symbol('IDatabaseRepository')

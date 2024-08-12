@@ -13,7 +13,6 @@ import {
   ISDatabaseRepository,
   IDatabaseRepository,
 } from '../../adapter/repositories/IDatabaseRepository'
-
 import {
   IMoviesRepository,
   ISMoviesRepository,

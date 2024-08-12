@@ -26,9 +26,6 @@ import { ListController } from '../controllers/list.controller'
 })
 export class ListModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthUser).forRoutes({
-      path: 'list/*',
-      method: RequestMethod.ALL,
-    })
+    consumer.apply(AuthUser).forRoutes(ListController)
   }
 }

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Inject,
   Post,
   Response,
@@ -28,6 +29,23 @@ export class ListController {
     private databaseRepository: IDatabaseRepository,
     @Inject(ISMoviesRepository) private moviesRepository: IMoviesRepository,
   ) {}
+
+  @Get('/')
+  async getUserMovieLists(
+    @Response({ passthrough: true }) res: Response,
+  ): Promise<IGetUserMovieListsResponse> {
+    const user = res['locals'].user as IUserDTO
+
+    if (!user) {
+      throw new BadRequestException('Token inexistente ou inválido.')
+    }
+
+    const lists = await this.databaseRepository.getListsByUserId(user.id)
+
+    return {
+      userLists: lists,
+    }
+  }
 
   @Post('/movie/add')
   async addMovieToList(
