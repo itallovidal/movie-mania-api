@@ -46,7 +46,10 @@ interface IRatingDTO {
 
 interface IProfileDTO {
   name: string
-  favoriteGenres: string[]
+  favoriteGenres: {
+    id: number
+    name: string
+  }[]
 }
 
 interface IUserDTO {

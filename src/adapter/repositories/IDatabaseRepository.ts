@@ -32,7 +32,6 @@ export interface IDatabaseRepository {
   ) => Promise<IRatingDTO>
 
   getMovieRating: (movieId: number, userId: number) => Promise<IRatingDTO>
-
   getListByMovieId: (movieId: number, userId: number) => Promise<any>
 }
 

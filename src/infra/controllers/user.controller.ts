@@ -42,7 +42,6 @@ export class UserController {
   ): Promise<IGetUserProfileResponse> {
     const user = res['locals'].user as IUserDTO
 
-
     if (!user) {
       throw new BadRequestException('Token inexistente ou inválido.')
     }
@@ -62,7 +61,7 @@ export class UserController {
     return {
       profile: {
         name: profile.name,
-        favoriteGenres: userGenres.map((gen) => gen.name),
+        favoriteGenres: userGenres,
       },
     }
   }

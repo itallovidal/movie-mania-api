@@ -37,9 +37,15 @@ export class MovieModule implements NestModule {
         method: RequestMethod.ALL,
       },
     )
-    consumer.apply(OptionalAuthMiddleware).forRoutes({
-      path: 'movie/random/:id',
-      method: RequestMethod.GET,
-    })
+    consumer.apply(OptionalAuthMiddleware).forRoutes(
+      {
+        path: 'movie/random/:id',
+        method: RequestMethod.GET,
+      },
+      {
+        path: 'movie/search/:title',
+        method: RequestMethod.GET,
+      },
+    )
   }
 }

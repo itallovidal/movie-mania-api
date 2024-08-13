@@ -38,17 +38,6 @@ export class MovieController {
     @Inject(ISMoviesRepository) private moviesRepository: IMoviesRepository,
   ) {}
 
-  @Get('/discover')
-  async getRandomMovies(): Promise<IGetMoviesByGenreResponse> {
-    const movies = await this.moviesRepository.getRandomMovies()
-    const { genres } = await this.moviesRepository.getAllGenres()
-    const randomMovies = formatMovies(genres, movies)
-
-    return {
-      movies: randomMovies,
-    }
-  }
-
   @Get('/genres')
   async getMovieGenres(): Promise<IGetGenreListResponse> {
     const { genres } = await this.moviesRepository.getAllGenres()
@@ -121,9 +110,6 @@ export class MovieController {
 
     const user = res['locals'].user as { id: number | null }
 
-    console.log('usuário:')
-    console.log(user)
-
     const { genres } = await this.moviesRepository.getAllGenres()
     const genreId = Number(id)
 
@@ -186,14 +172,66 @@ export class MovieController {
   }
 
   @Get('search/:title')
-  async searchMovieByTitle(@Param('title') title: string) {
+  async searchMovieByTitle(
+    @Response({ passthrough: true }) res: Response,
+    @Param('title') title: string,
+  ) {
     if (!title) {
       throw new BadRequestException('O título do filme deve ser informado.')
     }
     const { genres } = await this.moviesRepository.getAllGenres()
 
-    const movies = await this.moviesRepository.searchMovie(title)
-    return formatMovies(genres, movies)
+    const user = res['locals'].user as { id: number | null }
+
+    const unformattedMovies = await this.moviesRepository.searchMovie(title)
+
+    if (!user.id) {
+      const randomMovies = formatMovies(genres, unformattedMovies)
+      return {
+        movies: randomMovies,
+      }
+    }
+
+    const movies: IMovieDTO[] = []
+    for await (const movie of unformattedMovies.results) {
+      const listMovieAppears = await this.databaseRepository.getListByMovieId(
+        movie.id,
+        user.id,
+      )
+
+      const {
+        /* eslint-disable @typescript-eslint/no-unused-vars, camelcase */
+        genre_ids,
+        vote_count,
+        vote_average,
+        popularity,
+        video,
+        original_title,
+        adult,
+        original_language,
+        release_date,
+        backdrop_path,
+        ...rest
+      } = movie
+
+      const formattedMovie = {
+        lists: listMovieAppears,
+        backdrop_path: backdrop_path || '',
+        rating: {
+          average: vote_average,
+          ratingsCount: vote_count,
+        },
+        ...rest,
+        release_date: release_date.split('-').reverse().join('/'),
+        genres: genres.filter((gen) => movie.genre_ids.includes(gen.id)),
+      }
+
+      movies.push(formattedMovie)
+    }
+
+    return {
+      movies,
+    }
   }
 
   @Post('comment/:movieId')
