@@ -1,471 +1,471 @@
-openapi: 3.0.3
-info:
-  title: Movie Mania 3.0
-  description:
-    MovieMania é o seu destino online para tudo relacionado a filmes! Nosso site permite que você crie e organize listas personalizadas de seus filmes favoritos, escreva comentários detalhados sobre os filmes que assistiu e fique por dentro dos lançamentos mais recentes. Explore uma vasta biblioteca de títulos, interaja com uma comunidade de cinéfilos e descubra novas recomendações baseadas nas suas preferências. Com uma interface amigável e recursos intuitivos, o MovieMania torna a experiência de assistir filmes ainda mais envolvente e divertida. Junte-se a nós e compartilhe sua paixão pelo cinema!
-  version: 1.0.11
-servers:
-  - url: http://localhost:3333/
-tags:
-  - name: movies
-    description: Operations about movies
-  - name: users
-    description: Operations about user
-  - name: lists
-    description: Operations about user lists
-paths:
-  /movies/discover:
-    get:
-      tags:
-        - movies
-      summary: 'A route that get 10 random movies'
-      description:  ''
-      operationId: getRandomMovies
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RandomMovies'
-        '500':
-          description: Internal Server Error.
-  /movies/search:
-    get:
-      tags:
-        - movies
-      summary: 'Search movie by title'
-      parameters:
-        - in: query
-          name: title
-          required: true
-          schema:
-            type: string
-      operationId: searchMovie
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Movie'
-        '500':
-          description: Internal Server Error.
-  /movies/random/{id}:
-    get:
-      tags:
-        - movies
-      summary: 'A route that get 10 random movies considering the genre'
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      operationId: getRandomMoviesByGenre
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RandomMovies'
-        '500':
-          description: Internal Server Error.
-  /movies/comments/{id}:
-    get:
-      tags:
-        - movies
-      summary: 'A route that returns all movie comments'
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      operationId: getMovieById
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Comment'
-        '500':
-          description: Internal Server Error.
-  /movies/comments/{movieId}:
-    post:
-      tags:
-        - movies
-      summary: 'A route that post a comment in a movie'
-      parameters:
-        - in: path
-          name: movieId
-          required: true
-          schema:
-            type: integer
-      operationId: postMovieComment
-      requestBody:
-        description: Created user object
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                comment:
-                  type: string
-                  example: Muito legal esse filme!
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comment'
-        '500':
-          description: Internal Server Error.
-  /users/sign-up:
-    post:
-      tags:
-        - users
-      summary: 'Create user'
-      operationId: createUser
-      requestBody:
-        description: Created user object
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateUser'
-      responses:
-        '201':
-          description: User Created Successfully
-        '500':
-          description: Internal Server Error.
-  /users/profile:
-    get:
-      tags:
-        - users
-      summary: 'Get user profile'
-      operationId: getUserProfile
-      responses:
-        '200':
-          description: User profile
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserProfile'
-        '500':
-          description: Internal Server Error.
-  /users/login:
-    post:
-      tags:
-        - users
-      summary: 'Sign in user'
-      operationId: login
-      requestBody:
-        description: Login user object
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginUser'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JWT'
-        '404':
-          description: user does not exist
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/errorObject'
-  /lists/{id}:
-    get:
-      tags:
-        - lists
-      summary: 'A route that returns all movies from a specific list'
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-      operationId: getListsByUser
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserList'
-        '500':
-          description: Internal Server Error.
-  /lists:
-    get:
-      tags:
-        - lists
-      summary: 'Get all id and name lists'
-      operationId: resumeList
-      responses:
-        '200':
-          description: Get id and name
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListResumoArray'
-        '500':
-          description: Internal Server Error.
-  /lists/create:
-    put:
-      tags:
-        - lists
-      summary: 'Create a new list'
-      requestBody:
-        description: Create list object
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateList'
-      description: A route that create a movie list
-      operationId: createList
-      responses:
-        '200':
-          description: Successful operation
-        '500':
-          description: Internal Server Error.
-  /lists/movies/add:
-    post:
-      tags:
-        - lists
-      summary: 'A route that add a movie into the list'
-      operationId: addMovieInList
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddMovie'
-      responses:
-        '200':
-          description: Successful operation
-
-        '500':
-          description: Internal Server Error.
-  /lists/movies/remove/{listId}/{movieId}:
-    delete:
-      tags:
-        - lists
-      summary: 'A route that remove a movie from list'
-      operationId: deleteMovieInList
-      parameters:
-        - in: path
-          name: listId
-          required: true
-          schema:
-            type: integer
-        - in: path
-          name: movieId
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Successful operation
-        '500':
-          description: Internal Server Error.
-components:
-  schemas:
-    errorObject:
-      type: object
-      properties:
-        description:
-          type: string
-          example: user not found
-        code:
-          type: integer
-          example: 404
-        error:
-          type: string
-          example: Not Found
-    UserProfile:
-      type: object
-      properties:
-        name:
-          type: string
-          example: "Itallo Vidal"
-        favoriteGenres:
-          type: array
-          items:
-            type: string
-            example: "Ação"
-    ListResumoArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/ListResume'
-    ListResume:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: "Filmes para ver dormindo"
-    AddMovie:
-      type: object
-      properties:
-        listId:
-          type: integer
-          example: 1
-        movieId:
-          type: integer
-          example: 1
-    CreateList:
-      type: object
-      properties:
-        name:
-          type: string
-          example: "Filmes para ver dormindo."
-    UserList:
-      type: array
-      items:
-        $ref: '#/components/schemas/List'
-    List:
-      type: object
-      properties:
-        name:
-          type: string
-          example: 'Filmes para ver dormindo'
-        id:
-          type: integer
-          example: 10
-        movies:
-          type: array
-          items:
-            $ref: '#/components/schemas/Movie'
-    JWT:
-      type: object
-      properties:
-        token:
-          type: string
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-    LoginUser:
-      type: object
-      properties:
-        password:
-          type: string
-          example: 1234567
-        email:
-          type: string
-          example: Itallo@email.com
-    CreateUser:
-      type: object
-      properties:
-        username:
-          type: string
-          example: Itallo
-        password:
-          type: string
-          example: 1234567
-        email:
-          type: string
-          example: Itallo@email.com
-        favoriteGenre1:
-          type: number
-          example: 12
-        favoriteGenre2:
-          type: number
-          example: 28
-
-    MovieDetailsList:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        name:
-          type: string
-          example: 'Filmes para ver dormindo'
-    Comment:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        created_at:
-          type: string
-          example: "21/05/10"
-        text:
-          type: string
-          example: "Bom demais esse filme!"
-        rating:
-          type: integer
-          example: 4
-        name:
-          type: string
-          example: "Thaissa"
-    Movie:
-      type: object
-      properties:
-        release_date:
-          type: string
-          example: 2024-06-03
-        poster_path:
-          type: string
-          example: /mlgAkeiFetX7EQJzpgl2fQ19JEa.jpg
-        vote_average:
-          type: integer
-          format: int64
-          example: 10.00
-        id:
-          type: integer
-          format: int64
-          example: 1323050
-        title:
-          type: string
-          example: Winner Takes All
-        overview:
-          type: string
-          example: Two childhood friends grow up in a life of crime. After a foiled robbery one is jailed, the other joins the army and becomes a narc agent. A corrupt drug agent plots an assassination for a Mafia boss that jeopardizes the two friends lives.
-        genres:
-          $ref: '#/components/schemas/Genres'
-        backdrop_path:
-          type: string
-          example: /a0e91RD8tDuDQCff1CzgiLqhd24.jpg
-    Genres:
-      type: array
-      items:
-        $ref: '#/components/schemas/Genre'
-    Genre:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-          example: "Ação"
-    RandomMovies:
-      type: array
-      items:
-        $ref: '#/components/schemas/Movie'
-    MovieDetails:
-      type: object
-      properties:
-        comments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Comment'
-        details:
-          type: object
-          allOf:
-            - $ref: '#/components/schemas/Movie'
-          properties:
-            list:
-              type: array
-              items:
-                $ref: '#/components/schemas/MovieDetailsList'
-
+#openapi: 3.0.3
+#info:
+#  title: Movie Mania 3.0
+#  description:
+#    MovieMania é o seu destino online para tudo relacionado a filmes! Nosso site permite que você crie e organize listas personalizadas de seus filmes favoritos, escreva comentários detalhados sobre os filmes que assistiu e fique por dentro dos lançamentos mais recentes. Explore uma vasta biblioteca de títulos, interaja com uma comunidade de cinéfilos e descubra novas recomendações baseadas nas suas preferências. Com uma interface amigável e recursos intuitivos, o MovieMania torna a experiência de assistir filmes ainda mais envolvente e divertida. Junte-se a nós e compartilhe sua paixão pelo cinema!
+#  version: 1.0.11
+#servers:
+#  - url: http://localhost:3333/
+#tags:
+#  - name: movies
+#    description: Operations about movies
+#  - name: users
+#    description: Operations about user
+#  - name: lists
+#    description: Operations about user lists
+#paths:
+#  /movies/discover:
+#    get:
+#      tags:
+#        - movies
+#      summary: 'A route that get 10 random movies'
+#      description:  ''
+#      operationId: getRandomMovies
+#      responses:
+#        '200':
+#          description: Successful operation
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/RandomMovies'
+#        '500':
+#          description: Internal Server Error.
+#  /movies/search:
+#    get:
+#      tags:
+#        - movies
+#      summary: 'Search movie by title'
+#      parameters:
+#        - in: query
+#          name: title
+#          required: true
+#          schema:
+#            type: string
+#      operationId: searchMovie
+#      responses:
+#        '200':
+#          description: Successful operation
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Movie'
+#        '500':
+#          description: Internal Server Error.
+#  /movies/random/{id}:
+#    get:
+#      tags:
+#        - movies
+#      summary: 'A route that get 10 random movies considering the genre'
+#      parameters:
+#        - in: path
+#          name: id
+#          required: true
+#          schema:
+#            type: integer
+#      operationId: getRandomMoviesByGenre
+#      responses:
+#        '200':
+#          description: Successful operation
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/RandomMovies'
+#        '500':
+#          description: Internal Server Error.
+#  /movies/comments/{id}:
+#    get:
+#      tags:
+#        - movies
+#      summary: 'A route that returns all movie comments'
+#      parameters:
+#        - in: path
+#          name: id
+#          required: true
+#          schema:
+#            type: integer
+#      operationId: getMovieById
+#      responses:
+#        '200':
+#          description: Successful operation
+#          content:
+#            application/json:
+#              schema:
+#                type: array
+#                items:
+#                  $ref: '#/components/schemas/Comment'
+#        '500':
+#          description: Internal Server Error.
+#  /movies/comments/{movieId}:
+#    post:
+#      tags:
+#        - movies
+#      summary: 'A route that post a comment in a movie'
+#      parameters:
+#        - in: path
+#          name: movieId
+#          required: true
+#          schema:
+#            type: integer
+#      operationId: postMovieComment
+#      requestBody:
+#        description: Created user object
+#        content:
+#          application/json:
+#            schema:
+#              type: object
+#              properties:
+#                comment:
+#                  type: string
+#                  example: Muito legal esse filme!
+#      responses:
+#        '200':
+#          description: Successful operation
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Comment'
+#        '500':
+#          description: Internal Server Error.
+#  /users/sign-up:
+#    post:
+#      tags:
+#        - users
+#      summary: 'Create user'
+#      operationId: createUser
+#      requestBody:
+#        description: Created user object
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/CreateUser'
+#      responses:
+#        '201':
+#          description: User Created Successfully
+#        '500':
+#          description: Internal Server Error.
+#  /users/profile:
+#    get:
+#      tags:
+#        - users
+#      summary: 'Get user profile'
+#      operationId: getUserProfile
+#      responses:
+#        '200':
+#          description: User profile
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/UserProfile'
+#        '500':
+#          description: Internal Server Error.
+#  /users/login:
+#    post:
+#      tags:
+#        - users
+#      summary: 'Sign in user'
+#      operationId: login
+#      requestBody:
+#        description: Login user object
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/LoginUser'
+#      responses:
+#        '200':
+#          description: successful operation
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/JWT'
+#        '404':
+#          description: user does not exist
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/errorObject'
+#  /lists/{id}:
+#    get:
+#      tags:
+#        - lists
+#      summary: 'A route that returns all movies from a specific list'
+#      parameters:
+#        - in: path
+#          name: id
+#          required: true
+#          schema:
+#            type: integer
+#      operationId: getListsByUser
+#      responses:
+#        '200':
+#          description: Successful operation
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/UserList'
+#        '500':
+#          description: Internal Server Error.
+#  /lists:
+#    get:
+#      tags:
+#        - lists
+#      summary: 'Get all id and name lists'
+#      operationId: resumeList
+#      responses:
+#        '200':
+#          description: Get id and name
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ListResumoArray'
+#        '500':
+#          description: Internal Server Error.
+#  /lists/create:
+#    put:
+#      tags:
+#        - lists
+#      summary: 'Create a new list'
+#      requestBody:
+#        description: Create list object
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/CreateList'
+#      description: A route that create a movie list
+#      operationId: createList
+#      responses:
+#        '200':
+#          description: Successful operation
+#        '500':
+#          description: Internal Server Error.
+#  /lists/movies/add:
+#    post:
+#      tags:
+#        - lists
+#      summary: 'A route that add a movie into the list'
+#      operationId: addMovieInList
+#      requestBody:
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/AddMovie'
+#      responses:
+#        '200':
+#          description: Successful operation
+#
+#        '500':
+#          description: Internal Server Error.
+#  /lists/movies/remove/{listId}/{movieId}:
+#    delete:
+#      tags:
+#        - lists
+#      summary: 'A route that remove a movie from list'
+#      operationId: deleteMovieInList
+#      parameters:
+#        - in: path
+#          name: listId
+#          required: true
+#          schema:
+#            type: integer
+#        - in: path
+#          name: movieId
+#          required: true
+#          schema:
+#            type: integer
+#      responses:
+#        '200':
+#          description: Successful operation
+#        '500':
+#          description: Internal Server Error.
+#components:
+#  schemas:
+#    errorObject:
+#      type: object
+#      properties:
+#        description:
+#          type: string
+#          example: user not found
+#        code:
+#          type: integer
+#          example: 404
+#        error:
+#          type: string
+#          example: Not Found
+#    UserProfile:
+#      type: object
+#      properties:
+#        name:
+#          type: string
+#          example: "Itallo Vidal"
+#        favoriteGenres:
+#          type: array
+#          items:
+#            type: string
+#            example: "Ação"
+#    ListResumoArray:
+#      type: array
+#      items:
+#        $ref: '#/components/schemas/ListResume'
+#    ListResume:
+#      type: object
+#      properties:
+#        id:
+#          type: integer
+#          example: 1
+#        name:
+#          type: string
+#          example: "Filmes para ver dormindo"
+#    AddMovie:
+#      type: object
+#      properties:
+#        listId:
+#          type: integer
+#          example: 1
+#        movieId:
+#          type: integer
+#          example: 1
+#    CreateList:
+#      type: object
+#      properties:
+#        name:
+#          type: string
+#          example: "Filmes para ver dormindo."
+#    UserList:
+#      type: array
+#      items:
+#        $ref: '#/components/schemas/List'
+#    List:
+#      type: object
+#      properties:
+#        name:
+#          type: string
+#          example: 'Filmes para ver dormindo'
+#        id:
+#          type: integer
+#          example: 10
+#        movies:
+#          type: array
+#          items:
+#            $ref: '#/components/schemas/Movie'
+#    JWT:
+#      type: object
+#      properties:
+#        token:
+#          type: string
+#          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+#    LoginUser:
+#      type: object
+#      properties:
+#        password:
+#          type: string
+#          example: 1234567
+#        email:
+#          type: string
+#          example: Itallo@email.com
+#    CreateUser:
+#      type: object
+#      properties:
+#        username:
+#          type: string
+#          example: Itallo
+#        password:
+#          type: string
+#          example: 1234567
+#        email:
+#          type: string
+#          example: Itallo@email.com
+#        favoriteGenre1:
+#          type: number
+#          example: 12
+#        favoriteGenre2:
+#          type: number
+#          example: 28
+#
+#    MovieDetailsList:
+#      type: object
+#      properties:
+#        id:
+#          type: integer
+#          example: 1
+#        name:
+#          type: string
+#          example: 'Filmes para ver dormindo'
+#    Comment:
+#      type: object
+#      properties:
+#        id:
+#          type: integer
+#          example: 1
+#        created_at:
+#          type: string
+#          example: "21/05/10"
+#        text:
+#          type: string
+#          example: "Bom demais esse filme!"
+#        rating:
+#          type: integer
+#          example: 4
+#        name:
+#          type: string
+#          example: "Thaissa"
+#    Movie:
+#      type: object
+#      properties:
+#        release_date:
+#          type: string
+#          example: 2024-06-03
+#        poster_path:
+#          type: string
+#          example: /mlgAkeiFetX7EQJzpgl2fQ19JEa.jpg
+#        vote_average:
+#          type: integer
+#          format: int64
+#          example: 10.00
+#        id:
+#          type: integer
+#          format: int64
+#          example: 1323050
+#        title:
+#          type: string
+#          example: Winner Takes All
+#        overview:
+#          type: string
+#          example: Two childhood friends grow up in a life of crime. After a foiled robbery one is jailed, the other joins the army and becomes a narc agent. A corrupt drug agent plots an assassination for a Mafia boss that jeopardizes the two friends lives.
+#        genres:
+#          $ref: '#/components/schemas/Genres'
+#        backdrop_path:
+#          type: string
+#          example: /a0e91RD8tDuDQCff1CzgiLqhd24.jpg
+#    Genres:
+#      type: array
+#      items:
+#        $ref: '#/components/schemas/Genre'
+#    Genre:
+#      type: object
+#      properties:
+#        id:
+#          type: integer
+#          format: int64
+#        name:
+#          type: string
+#          example: "Ação"
+#    RandomMovies:
+#      type: array
+#      items:
+#        $ref: '#/components/schemas/Movie'
+#    MovieDetails:
+#      type: object
+#      properties:
+#        comments:
+#          type: array
+#          items:
+#            $ref: '#/components/schemas/Comment'
+#        details:
+#          type: object
+#          allOf:
+#            - $ref: '#/components/schemas/Movie'
+#          properties:
+#            list:
+#              type: array
+#              items:
+#                $ref: '#/components/schemas/MovieDetailsList'
+#

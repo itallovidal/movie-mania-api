@@ -17,7 +17,6 @@ import {
   IMoviesRepository,
   ISMoviesRepository,
 } from '../../adapter/repositories/IMoviesRepository'
-import { formatMovies } from '../../utils/formatMovies'
 import { ZodValidationPipe } from '../zod-validation-pipe'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -29,6 +28,7 @@ import {
   IRateMovieSchema,
   rateMovieSchema,
 } from '../../adapter/schemas/rating-schema'
+import { FormatMovieService } from '../services/format-movie.service'
 
 @Controller('/movie')
 export class MovieController {
@@ -36,6 +36,7 @@ export class MovieController {
     @Inject(ISDatabaseRepository)
     private databaseRepository: IDatabaseRepository,
     @Inject(ISMoviesRepository) private moviesRepository: IMoviesRepository,
+    @Inject(FormatMovieService) private formatMovieService: FormatMovieService,
   ) {}
 
   @Get('/genres')
@@ -123,48 +124,17 @@ export class MovieController {
       await this.moviesRepository.getRandomMoviesByGenre(genreId)
 
     if (!user.id) {
-      const randomMovies = formatMovies(genres, unformattedMovies)
+      const randomMovies =
+        await this.formatMovieService.formatMovieGenres(unformattedMovies)
       return {
         movies: randomMovies,
       }
     }
 
-    const movies: IMovieDTO[] = []
-    for await (const movie of unformattedMovies.results) {
-      const listMovieAppears = await this.databaseRepository.getListByMovieId(
-        movie.id,
-        user.id,
-      )
-
-      const {
-        /* eslint-disable @typescript-eslint/no-unused-vars, camelcase */
-        genre_ids,
-        vote_count,
-        vote_average,
-        popularity,
-        video,
-        original_title,
-        adult,
-        original_language,
-        release_date,
-        backdrop_path,
-        ...rest
-      } = movie
-
-      const formattedMovie = {
-        lists: listMovieAppears,
-        backdrop_path: backdrop_path || '',
-        rating: {
-          average: vote_average,
-          ratingsCount: vote_count,
-        },
-        ...rest,
-        release_date: release_date.split('-').reverse().join('/'),
-        genres: genres.filter((gen) => movie.genre_ids.includes(gen.id)),
-      }
-
-      movies.push(formattedMovie)
-    }
+    const movies = await this.formatMovieService.formatMovieLists(
+      unformattedMovies.results,
+      user.id,
+    )
 
     return {
       movies,
@@ -179,55 +149,23 @@ export class MovieController {
     if (!title) {
       throw new BadRequestException('O título do filme deve ser informado.')
     }
-    const { genres } = await this.moviesRepository.getAllGenres()
 
     const user = res['locals'].user as { id: number | null }
 
     const unformattedMovies = await this.moviesRepository.searchMovie(title)
 
     if (!user.id) {
-      const randomMovies = formatMovies(genres, unformattedMovies)
+      const randomMovies =
+        this.formatMovieService.formatMovieGenres(unformattedMovies)
       return {
         movies: randomMovies,
       }
     }
 
-    const movies: IMovieDTO[] = []
-    for await (const movie of unformattedMovies.results) {
-      const listMovieAppears = await this.databaseRepository.getListByMovieId(
-        movie.id,
-        user.id,
-      )
-
-      const {
-        /* eslint-disable @typescript-eslint/no-unused-vars, camelcase */
-        genre_ids,
-        vote_count,
-        vote_average,
-        popularity,
-        video,
-        original_title,
-        adult,
-        original_language,
-        release_date,
-        backdrop_path,
-        ...rest
-      } = movie
-
-      const formattedMovie = {
-        lists: listMovieAppears,
-        backdrop_path: backdrop_path || '',
-        rating: {
-          average: vote_average,
-          ratingsCount: vote_count,
-        },
-        ...rest,
-        release_date: release_date.split('-').reverse().join('/'),
-        genres: genres.filter((gen) => movie.genre_ids.includes(gen.id)),
-      }
-
-      movies.push(formattedMovie)
-    }
+    const movies = await this.formatMovieService.formatMovieLists(
+      unformattedMovies.results,
+      user.id,
+    )
 
     return {
       movies,

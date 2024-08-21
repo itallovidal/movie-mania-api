@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
   ForbiddenException,
   Get,
@@ -49,6 +50,7 @@ export class UserController {
     const profile = await this.usersRepository.getProfile(user.id)
     const { genres } = await this.moviesRepository.getAllGenres()
 
+    // eslint-disable-next-line array-callback-return
     const userGenres = genres.filter((genre) => {
       if (
         genre.id === profile.favoriteGenre1 ||
@@ -71,14 +73,20 @@ export class UserController {
   async signUp(
     @Body(new ZodValidationPipe(signUpSchema)) payload: ISignUpSchema,
   ) {
-    try {
-      return await this.usersRepository.signUp(payload)
-    } catch (e) {
-      console.log(e)
-      throw new InternalServerErrorException(
-        'Não foi possível criar o usuário.',
-      )
+    const isEmailAlreadyInUse = await this.usersRepository.getUserByEmail(
+      payload.email,
+    )
+
+    if (isEmailAlreadyInUse) {
+      throw new ConflictException({
+        message: 'Email já em uso.',
+        field: 'email',
+        status: 409,
+        error: 'Em uso.',
+      })
     }
+
+    return await this.usersRepository.signUp(payload)
   }
 
   @Post('/login')

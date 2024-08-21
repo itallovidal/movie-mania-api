@@ -3,7 +3,7 @@ import {
   IGetMoviesResponse,
 } from '../domain/tmdb-responses'
 
-export function formatMovies(
+function formatMovieGenres(
   genres: IGetGenresResponse['genres'],
   movies: IGetMoviesResponse,
 ): IMovieDTO[] {

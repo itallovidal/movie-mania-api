@@ -11,10 +11,12 @@ import { TMDBRepository } from '../../adapter/repositories/implementations/tmdb-
 import { MovieController } from '../controllers/movie.controller'
 import { AuthUser } from '../auth.middleware'
 import { OptionalAuthMiddleware } from '../optionalAuth.middleware'
+import { FormatMovieService } from '../services/format-movie.service'
 
 @Module({
   controllers: [MovieController],
   providers: [
+    FormatMovieService,
     {
       provide: ISDatabaseRepository,
       useClass: PrismaRepository,
